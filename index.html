@@ -198,6 +198,49 @@
 		  .catch(err => console.error('Service Worker failed', err));
 	  }
 	</script>
+	
+	<script>
+	  const form = document.getElementById("tripForm");
 
+	  function saveOfflineEntry(data) {
+		const stored = JSON.parse(localStorage.getItem("offlineEntries") || "[]");
+		stored.push(data);
+		localStorage.setItem("offlineEntries", JSON.stringify(stored));
+	  }
+
+	  form.addEventListener("submit", function (e) {
+		e.preventDefault();
+		const formData = new FormData(form);
+		const data = Object.fromEntries(formData.entries());
+
+		if (navigator.onLine) {
+		  fetch(form.action, {
+			method: "POST",
+			body: new URLSearchParams(data)
+		  }).then(() => form.reset());
+		} else {
+		  saveOfflineEntry(data);
+		  alert("Saved offline. Will send when you're back online.");
+		  form.reset();
+		}
+	  });
+
+	  window.addEventListener("online", () => {
+		const stored = JSON.parse(localStorage.getItem("offlineEntries") || "[]");
+
+		if (stored.length > 0) {
+		  stored.forEach(data => {
+			fetch(form.action, {
+			  method: "POST",
+			  body: new URLSearchParams(data)
+			});
+		  });
+
+		  localStorage.removeItem("offlineEntries");
+		  alert("Offline entries submitted!");
+		}
+	  });
+	</script>
+	
 </body>
 </html>
