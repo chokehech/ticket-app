@@ -48,148 +48,69 @@
 <body>
 
   <form id="tripForm" action="https://script.google.com/macros/s/AKfycbzfWup2gLl8AWMy6OocEZ7_wuTNk5RawIVqWdbc6ghwoEPRDzsqVfm9Zas7tJLcDqI/exec" method="POST">
-    <h2>Trip Information</h2>
+    <form id="tripForm" ...>
 
+  <!-- STEP 1: Trip Details -->
+  <div id="step1">
+    <h2>Trip Details</h2>
+
+    <!-- Bus Number, Driver Code, Conductor Code (if any), Route -->
     <label for="busNumber">Bus Number</label>
     <select id="busNumber" name="bus_number" required>
-	<option value="">-- Select Bus --</option>
- 	<option value="2001">2001</option>
- 	<option value="2002">2002</option>
- 	<option value="2003">2003</option>
- 	<option value="2004">2004</option>
- 	<option value="2005">2005</option>
-  	<option value="2006">2006</option>
- 	<option value="2007">2007</option>
- 	<option value="2008">2008</option>
- 	<option value="2009">2009</option>
-  	<option value="2010">2010</option>
- 	<option value="2011">2011</option>
- 	<option value="2012">2012</option>
-  	<option value="2013">2013</option>
- 	<option value="2014">2014</option>
- 	<option value="2015">2015</option>
+      <option value="">-- Select Bus --</option>
+      <option value="2001">2001</option>
+      <!-- ... -->
     </select>
 
     <label for="driverCode">Driver Code</label>
     <select id="driverCode" name="driver_code" required>
- 	 <option value="">-- Select Driver --</option>
-		<option value="01">01</option>
-		<option value="02">02</option>
-		<option value="03">03</option>
-		<option value="04">04</option>
-		<option value="05">05</option>
-		<option value="06">06</option>
-		<option value="07">07</option>
-		<option value="08">08</option>
-		<option value="09">09</option>
-		<option value="10">10</option>
+      <option value="">-- Select Driver --</option>
+      <option value="01">01</option>
+      <!-- ... -->
     </select>
+
+    <button type="button" onclick="goToStep(2)">Next</button>
+  </div>
+
+  <!-- STEP 2: Fare Info -->
+  <div id="step2" style="display: none;">
+    <h2>Fare Details</h2>
 
     <label for="passengerCategory">Passenger Category</label>
     <select id="passengerCategory" name="passenger_category" required>
       <option value="">-- Select Category --</option>
       <option value="Regular">Regular</option>
-      <option value="Senior">Senior Citizen</option>
-      <option value="Student">Student</option>
-      <option value="PWD">PWD</option>
+      <!-- ... -->
     </select>
 
     <label for="fromStop">FROM Stop</label>
     <select id="fromStop" name="from_stop" required>
-	  <option value="" disabled selected>Select a stop</option>
-	  <option value="Naga">Naga</option>
-	  <option value="Polangui">Polangui</option>
-	  <option value="Libmanan Down">Libmanan Down</option>
-	  <option value="Daet Down">Daet Down</option>
-	  <option value="Labo Down">Labo Down</option>
-	  <option value="Libmanan">Libmanan</option>
-	  <option value="Sipocot">Sipocot</option>
-	  <option value="Vinzons Down">Vinzons Down</option>
-	  <option value="Talisay Down">Talisay Down</option>
-	  <option value="Pamplona">Pamplona</option>
-	  <option value="Pili">Pili</option>
-	  <option value="Nabua">Nabua</option>
-	  <option value="Ligao">Ligao</option>
-	  <option value="Camalig">Camalig</option>
-	  <option value="Daraga">Daraga</option>
-	  <option value="Sm Sorsogon">Sm Sorsogon</option>
-	  <option value="Salvacion">Salvacion</option>
-	  <option value="Anislag">Anislag</option>
-	  <option value="Bula">Bula</option>
-	  <option value="Anayan">Anayan</option>
-	  <option value="Cbd Terminal">Cbd Terminal</option>
-	  <option value="Guinobatan">Guinobatan</option>
-	  <option value="Pangpang Sorsogon">Pangpang Sorsogon</option>
-	  <option value="Castilla">Castilla</option>
-	  <option value="Putiao">Putiao</option>
-	  <option value="Oas">Oas</option>
-	  <option value="Matacon">Matacon</option>
-	  <option value="Agos">Agos</option>
-	  <option value="Cumadcad">Cumadcad</option>
-	  <option value="Sorsogon Diversion">Sorsogon Diversion</option>
-	  <option value="Baao">Baao</option>
-	  <option value="Pawili">Pawili</option>
-	  <option value="Bato">Bato</option>
-	  <option value="Sipocot Down">Sipocot Down</option>
-	  <option value="Villazar">Villazar</option>
-	  <option value="Daet">Daet</option>
-	  <option value="Pamplona Down">Pamplona Down</option>
-	  <option value="Basud Down">Basud Down</option>
-	  <option value="Villazar Down">Villazar Down</option>
-	  <option value="Calagbangan Down">Calagbangan Down</option>
+      <option value="">-- Select Stop --</option>
+      <option value="Naga">Naga</option>
+      <!-- ... -->
     </select>
 
     <label for="toStop">TO Stop</label>
     <select id="toStop" name="to_stop" required>
-	  <option value="" disabled selected>Select a stop</option>
-	  <option value="Sipocot">Sipocot</option>
-	  <option value="Labo">Labo</option>
-	  <option value="Camalig">Camalig</option>
-	  <option value="Libmanan">Libmanan</option>
-	  <option value="Daet">Daet</option>
-	  <option value="Talisay">Talisay</option>
-	  <option value="Villazar">Villazar</option>
-	  <option value="Naga Down">Naga Down</option>
-	  <option value="Villazar Down">Villazar Down</option>
-	  <option value="Sipocot Down">Sipocot Down</option>
-	  <option value="Libmanan Down">Libmanan Down</option>
-	  <option value="Basud Down">Basud Down</option>
-	  <option value="Calagbangan Down">Calagbangan Down</option>
-	  <option value="Pamplona Down">Pamplona Down</option>
-	  <option value="Calagbangan">Calagbangan</option>
-	  <option value="Pamplona">Pamplona</option>
-	  <option value="Vinzons">Vinzons</option>
-	  <option value="Basud">Basud</option>
-	  <option value="Cbsua">Cbsua</option>
-	  <option value="Daet Down">Daet Down</option>
-	  <option value="Cbsua Down">Cbsua Down</option>
-	  <option value="Cbd Terminal">Cbd Terminal</option>
-	  <option value="Pili">Pili</option>
-	  <option value="Polangui">Polangui</option>
-	  <option value="Matacon">Matacon</option>
-	  <option value="Putiao">Putiao</option>
-	  <option value="Sm Sorsogon">Sm Sorsogon</option>
-	  <option value="Cumadcad">Cumadcad</option>
-	  <option value="Castilla">Castilla</option>
-	  <option value="Salvacion">Salvacion</option>
-	  <option value="Nabua">Nabua</option>
-	  <option value="Baao">Baao</option>
-	  <option value="Ligao">Ligao</option>
-	  <option value="Daraga">Daraga</option>
-	  <option value="Sorsogon Diversion">Sorsogon Diversion</option>
-	  <option value="Bato">Bato</option>
-	  <option value="Anayan">Anayan</option>
-	  <option value="Oas">Oas</option>
-	  <option value="Bula">Bula</option>
-	  <option value="Agos">Agos</option>
-	  <option value="Guinobatan">Guinobatan</option>
-	  <option value="Pawili">Pawili</option>
-	  <option value="Pangpang Sorsogon">Pangpang Sorsogon</option>
-	  <option value="Anislag">Anislag</option>
+      <option value="">-- Select Stop --</option>
+      <option value="Sipocot">Sipocot</option>
+      <!-- ... -->
     </select>
 
+    <button type="button" onclick="goToStep(1)">Back</button>
+    <button type="button" onclick="goToStep(3)">Next</button>
+  </div>
+
+  <!-- STEP 3: Confirmation -->
+  <div id="step3" style="display: none;">
+    <h2>Confirm and Submit</h2>
+    <p>Double check your entries and click Submit.</p>
+    <button type="button" onclick="goToStep(2)">Back</button>
     <button type="submit">Submit Trip Info</button>
-  </form>
+  </div>
+
+</form>
+
   
 	<script>
 	  if ('serviceWorker' in navigator) {
@@ -241,6 +162,14 @@
 		}
 	  });
 	</script>
-	
+	  
+	<script>
+	  function goToStep(step) {
+	    document.getElementById("step1").style.display = step === 1 ? "block" : "none";
+	    document.getElementById("step2").style.display = step === 2 ? "block" : "none";
+	    document.getElementById("step3").style.display = step === 3 ? "block" : "none";
+	  }
+	</script>
+
 </body>
 </html>
