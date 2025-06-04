@@ -1,4 +1,4 @@
-const CACHE_NAME = "bus-trip-v2"; // Increment this to force update
+const CACHE_NAME = "bus-trip-v3"; // Increment this to force update
 const urlsToCache = [
   "./",
   "./index.html",
