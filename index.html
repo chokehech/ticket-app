@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <title>Bus Trip Entry</title>
-	<link rel="manifest" href="manifest.json">
-	<meta name="theme-color" content="#2b8aed">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2b8aed">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
     body {
@@ -13,6 +13,7 @@
       padding: 2rem;
       background-color: #f8f8f8;
     }
+
     form {
       background: white;
       padding: 2rem;
@@ -20,12 +21,35 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
       max-width: 400px;
       margin: auto;
+      position: relative;
+      overflow: hidden;
+      height: 600px;
     }
+
+    .step {
+      transition: transform 0.5s ease, opacity 0.5s ease;
+      position: absolute;
+      width: 100%;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(100%);
+    }
+
+    .step.active {
+      opacity: 1;
+      pointer-events: auto;
+      position: relative;
+      transform: translateX(0);
+    }
+
     label {
       display: block;
       margin-bottom: 0.5rem;
       font-weight: bold;
     }
+
     select {
       width: 100%;
       padding: 0.5rem;
@@ -33,6 +57,7 @@
       border: 1px solid #ccc;
       border-radius: 5px;
     }
+
     button {
       padding: 0.75rem;
       width: 100%;
@@ -42,134 +67,852 @@
       border-radius: 5px;
       font-weight: bold;
       cursor: pointer;
+      margin-top: 1rem;
+    }
+    
+    button:disabled {
+      background-color: #a0c4f7; /* Lighter blue */
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+	
+	#summary {
+	  font-size: small;
+	  background-color: rgba(255, 255, 255, 0.8);
+	  padding: 10px;
+	  border-radius: 5px;
+	  max-width: 250px;
+	  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+	  margin-bottom: 20px; /* Add some space below the summary */
+	}
+
+	/* Modal backdrop */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+      z-index: 999; /* Ensure it's above other content */
+      justify-content: center; /* Center horizontally */
+      align-items: center; /* Center vertically */
+      display: flex; /* Flexbox for centering */
+    }
+
+    /* Modal content box */
+    .modal-content {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 400px; /* You can adjust this as needed */
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Modal header */
+    .modal h2 {
+      font-size: 1.5rem;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    /* Button styles */
+    .modal button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+    }
+
+    .modal button:nth-child(1) { /* Confirm button */
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .modal button:nth-child(2) { /* Cancel button */
+      background-color: #f44336;
+      color: white;
     }
   </style>
 </head>
 <body>
 
-  <form id="tripForm" action="https://script.google.com/macros/s/AKfycbzfWup2gLl8AWMy6OocEZ7_wuTNk5RawIVqWdbc6ghwoEPRDzsqVfm9Zas7tJLcDqI/exec" method="POST">
-    <form id="tripForm" ...>
+  <form id="tripForm" action="https://script.google.com/macros/s/AKfycbwqSeCOyp38Abs3zLwqwcQ-v8fr93Dm-0m1pG1A5Dky09aADzQf7daJDt3-d9WpzTuX/exec" method="POST">
 
-  <!-- STEP 1: Trip Details -->
-  <div id="step1">
-    <h2>Trip Details</h2>
+    <!-- STEP 1 -->
+    <div id="step1" class="step active">
+      <h2>Trip Details</h2>
 
-    <!-- Bus Number, Driver Code, Conductor Code (if any), Route -->
-    <label for="busNumber">Bus Number</label>
-    <select id="busNumber" name="bus_number" required>
-      <option value="">-- Select Bus --</option>
-      <option value="2001">2001</option>
-      <!-- ... -->
-    </select>
+      <label for="busNumber">Bus Number</label>
+      <select id="busNumber" name="bus_number" class="required-step1">
+        <option value="">-</option>
+        <option value="2001">2001</option>
+        <option value="2003">2003</option>
+        <option value="2005">2005</option>
+        <option value="2006">2006</option>
+        <option value="2007">2007</option>
+        <option value="2008">2008</option>
+        <option value="2009">2009</option>
+        <option value="2011">2011</option>
+        <option value="2016">2016</option>
+        <option value="2017">2017</option>
+        <option value="2018">2018</option>
+        <option value="2019">2019</option>
+        <option value="2020">2020</option>
+        <option value="2021">2021</option>
+        <option value="2022">2022</option>
+      </select>
 
-    <label for="driverCode">Driver Code</label>
-    <select id="driverCode" name="driver_code" required>
-      <option value="">-- Select Driver --</option>
-      <option value="01">01</option>
-      <!-- ... -->
-    </select>
+      <label for="driverName">Driver</label>
+      <select id="driverName" name="driver_name" class="required-step1">
+        <option value="">-</option>
+        <option value="AAmabillo">AAmabillo</option>
+        <option value="AAndrade">AAndrade</option>
+        <option value="ABriones">ABriones</option>
+        <option value="BDemesa">BDemesa</option>
+        <option value="EEstuya">EEstuya</option>
+        <option value="EGangan">EGangan</option>
+        <option value="ERegalario">ERegalario</option>
+        <option value="FOco">FOco</option>
+        <option value="JDDiocampo">JDDiocampo</option>
+        <option value="JElcano">JElcano</option>
+        <option value="JZape">JZape</option>
+        <option value="LCorreo">LCorreo</option>
+        <option value="LEllazar">LEllazar</option>
+        <option value="MRaquid">MRaquid</option>
+        <option value="MBautista">MBautista</option>
+        <option value="NPante">NPante</option>
+        <option value="RBerzuela">RBerzuela</option>
+        <option value="REsplana">REsplana</option>
+        <option value="RLlanera">RLlanera</option>
+        <option value="RTubig">RTubig</option>
+      </select>
 
-    <button type="button" onclick="goToStep(2)">Next</button>
-  </div>
+      <label for="ConductorName">Conductor</label>
+      <select id="ConductorName" name="conductor_name" class="required-step1">
+		 <option value="">-</option>
+		 <option value="BookerNA">BookerNA</option>
+		 <option value="BookerNA2">BookerNA2</option>
+		 <option value="BookerLA">BookerLA</option>
+		 <option value="BookerDA">BookerDA</option>
+		 <option value="AZulueta">AZulueta</option>
+		 <option value="DNapay">DNapay</option>
+		 <option value="ECordova">ECordova</option>
+		 <option value="EMarqueses">EMarqueses</option>
+		 <option value="JBolo">JBolo</option>
+		 <option value="JMartinez">JMartinez</option>
+		 <option value="JOrdovez">JOrdovez</option>
+		 <option value="JSicena">JSicena</option>
+		 <option value="JTeves">JTeves</option>
+		 <option value="JPReblando">JPReblando</option>
+		 <option value="KOpao">KOpao</option>
+		 <option value="LBarce">LBarce</option>
+		 <option value="MGCanaveras">MGCanaveras</option>
+		 <option value="MVelasco">MVelasco</option>
+		 <option value="NBocio">NBocio</option>
+		 <option value="RBernas">RBernas</option>
+		 <option value="RCarumba">RCarumba</option>
+		 <option value="RManambit">RManambit</option>
+		 <option value="ZMBalane">ZMBalane</option>
+      </select>
+	  
+      <label for="RouteName">Route</label>
+      <select id="RouteName" name="route_name" class="required-step1" required onchange="updateStops()">
+		 <option value="">-</option>
+		 <option value="Naga-Labo">Naga-Labo</option>
+		 <option value="Labo-Naga">Labo-Naga</option>
+		 <option value="Naga-Sorsogon">Naga-Sorsogon</option>
+		 <option value="Sorsogon-Naga">Sorsogon-Naga</option>
+      </select>
 
-  <!-- STEP 2: Fare Info -->
-  <div id="step2" style="display: none;">
-    <h2>Fare Details</h2>
+      <button type="button" id="nextToStep2" onclick="goToStep(2)" disabled>Next</button>
+    </div>
 
-    <label for="passengerCategory">Passenger Category</label>
-    <select id="passengerCategory" name="passenger_category" required>
-      <option value="">-- Select Category --</option>
-      <option value="Regular">Regular</option>
-      <!-- ... -->
-    </select>
+    <!-- STEP 2 -->
+    <div id="step2" class="step">
 
-    <label for="fromStop">FROM Stop</label>
-    <select id="fromStop" name="from_stop" required>
-      <option value="">-- Select Stop --</option>
-      <option value="Naga">Naga</option>
-      <!-- ... -->
-    </select>
-
-    <label for="toStop">TO Stop</label>
-    <select id="toStop" name="to_stop" required>
-      <option value="">-- Select Stop --</option>
-      <option value="Sipocot">Sipocot</option>
-      <!-- ... -->
-    </select>
-
-    <button type="button" onclick="goToStep(1)">Back</button>
-    <button type="button" onclick="goToStep(3)">Next</button>
-  </div>
-
-  <!-- STEP 3: Confirmation -->
-  <div id="step3" style="display: none;">
-    <h2>Confirm and Submit</h2>
-    <p>Double check your entries and click Submit.</p>
-    <button type="button" onclick="goToStep(2)">Back</button>
-    <button type="submit">Submit Trip Info</button>
-  </div>
-
-</form>
+	  <!-- Small summary will appear here -->
+		<div id="summary"></div>
 
   
+      <h2>Fare Details</h2>
+      <label for="passengerCategory">Passenger Category</label>
+      <select id="passengerCategory" name="passenger_category" class="required-step2">
+        <option value="">-</option>
+        <option value="Regular">Regular</option>
+        <option value="Student">Student</option>
+		<option value="Senior Citizen">Senior Citizen</option>
+		<option value="PWD">PWD</option>
+		<option value="Baggage">Baggage</option>
+      </select>
+
+      <label for="fromStop">Origin</label>
+		<select id="fromStop" name="from_stop" class="required-step2" onchange="updateToStopOptions()">
+		  <option value="">-</option>
+		  <!-- Dynamically populated based on selected route -->
+		</select>
+
+      <label for="toStop">Destination</label>
+		<select id="toStop" name="to_stop" class="required-step2">
+		  <option value="-">-</option>
+		  <!-- Dynamically populated based on selected From Stop -->
+		</select>
+
+		<!-- Fare display -->
+		<p id="fareDisplayContainer" style="text-align: center; font-size: 24px; font-weight: bold;">
+		  <span id="fareDisplay">0.00</span>
+		</p>
+		<input type="hidden" name="fare" id="fareHiddenInput">
+
+
+      <button type="button" onclick="goToStep(1)">Back</button>
+      <button type="button" id="nextToStep3" onclick="showConfirmationModal()" disabled>Next</button>
+    </div>
+	
+
+			<!-- Modal (Step 3 - Popup) -->
+			<div id="confirmationModal" class="modal" style="display:none;">
+			  <div class="modal-content">
+				<h2>Confirm Your Trip Details</h2>
+				<div id="confirmationSummary" style="font-size: 16px; margin-bottom: 20px;">
+				  <!-- Summary will populate dynamically -->
+				</div>
+				<button id="confirmBtn" onclick="confirmTrip()">Confirm</button>
+				<button id="cancelBtn" onclick="closeModal()">Cancel</button>
+			  </div>
+			</div>
+
+			<script>
+			  // Flag to prevent multiple submissions
+			  let isSubmitting = false;
+
+			  // Show the confirmation modal
+			  function showConfirmationModal() {
+				// Capture the form data
+				const busNumber = document.getElementById('busNumber').value;
+				const driverName = document.getElementById('driverName').value;
+				const conductorName = document.getElementById('ConductorName').value;
+				const routeName = document.getElementById('RouteName').value;
+				const fare = document.getElementById('fareDisplay').textContent;
+
+				// Capture the additional fare details
+				const passengerCategory = document.getElementById('passengerCategory').value;
+				const fromStop = document.getElementById('fromStop').value;
+				const toStop = document.getElementById('toStop').value;
+
+				// Create the confirmation text with additional details
+				const confirmationText = `
+				  <strong>Bus Number:</strong> ${busNumber} <br>
+				  <strong>Driver:</strong> ${driverName} <br>
+				  <strong>Conductor:</strong> ${conductorName} <br>
+				  <strong>Route:</strong> ${routeName} <br>
+				  <strong>Passenger Category:</strong> ${passengerCategory} <br>
+				  <strong>Origin:</strong> ${fromStop} <br>
+				  <strong>Destination:</strong> ${toStop} <br>
+				  <strong>Fare:</strong> ${fare}
+				`;
+				
+				// Set the summary in the modal
+				document.getElementById('confirmationSummary').innerHTML = confirmationText;
+
+				// Show the modal
+				document.getElementById('confirmationModal').style.display = 'flex';
+			  }
+
+			  // Function to confirm the trip, submit the form via AJAX, and reset Step 2
+			  function confirmTrip() {
+				if (isSubmitting) return;  // Prevent multiple submissions
+
+				isSubmitting = true;  // Set flag to true, indicating submission in progress
+
+				// Prevent the default form submission (to avoid page reload)
+				const form = document.getElementById('tripForm');
+				const formData = new FormData(form); // Collect all the form data
+
+				// Logging formData to check if all values are captured
+				for (let [key, value] of formData.entries()) {
+				  console.log(`${key}: ${value}`);
+				}
+
+				// Submit the form using Fetch API (AJAX)
+				fetch(form.action, {
+				  method: 'POST', // Use the form's method (POST)
+				  body: formData, // Send the form data
+				})
+				.then(response => response.json()) // Assuming the response is in JSON format
+				.then(data => {
+				  // Handle successful submission
+				  console.log("Form submitted successfully:", data);
+
+				  // After submission, we want to reset Step 2 fields
+				  resetStep2();  // Reset the fields in Step 2
+
+				  // Ensure Step 2 remains visible
+				  goToStep(2);  // Make sure Step 2 remains visible
+
+				  // Close the modal
+				  closeModal();
+				})
+				.catch(error => {
+				  // Handle errors (if any)
+				  console.error("Error submitting form:", error);
+				  alert("There was an error submitting the form.");
+
+				  // Close the modal so the user can retry
+				  closeModal();
+				  isSubmitting = false;  // Reset flag after error
+				});
+			  }
+
+			  // Function to close the modal and reset the form state
+			  function closeModal() {
+				// Close the modal by hiding it
+				document.getElementById('confirmationModal').style.display = 'none';
+
+				// Reset the submission flag
+				isSubmitting = false;
+			  }
+
+			  // Function to reset Step 2 fields
+			  function resetStep2() {
+				// Reset the step 2 fields
+				document.getElementById('passengerCategory').value = "";
+				document.getElementById('fromStop').value = "";
+				document.getElementById('toStop').value = "";
+
+				// Reset the fare display
+				document.getElementById('fareDisplay').textContent = "₱0.00";
+				document.getElementById('fareHiddenInput').value = "";
+			  }
+
+			  // Prevent form submission when canceling the modal
+			  document.getElementById('cancelBtn').addEventListener('click', function (e) {
+				e.preventDefault();  // Prevent form submission
+				closeModal();  // Close the modal
+			  });
+			</script>
+
+
+
+
+
+
+  <script>
+    function goToStep(step) {
+      const steps = document.querySelectorAll(".step");
+      steps.forEach((el, index) => {
+        el.classList.remove("active");
+        if (index === step - 1) {
+          el.classList.add("active");
+        }
+      });
+	  
+	        // Only update summary when moving to Step 2
+      if (step === 2) {
+        updateSummary();
+      }
+    }
+  </script>
+
+  <script>
+		   // Function to validate Step 1
+		function validateStep1() {
+		  const requiredFields = document.querySelectorAll('.required-step1');
+		  const nextButton = document.getElementById('nextToStep2');
+		  let allSelected = true;
+
+		  requiredFields.forEach(field => {
+			if (field.value === "" || field.value === "-") {
+			  allSelected = false;
+			}
+		  });
+
+		  // Enable/Disable Next Button
+		  nextButton.disabled = !allSelected;
+		}
+
+		// Function to validate Step 2
+		function validateStep2() {
+		  const requiredFields = document.querySelectorAll('.required-step2');
+		  const nextButton = document.getElementById('nextToStep3');
+		  let allSelected = true;
+
+		  requiredFields.forEach(field => {
+			if (field.value === "" || field.value === "-") {
+			  allSelected = false;
+			}
+		  });
+
+		  // Enable/Disable Next Button
+		  nextButton.disabled = !allSelected;
+		}
+
+		// Event listeners for validation
+		document.querySelectorAll('.required-step1').forEach(field => {
+		  field.addEventListener('change', validateStep1);
+		});
+
+		document.querySelectorAll('.required-step2').forEach(field => {
+		  field.addEventListener('change', validateStep2);
+		});
+
+		// Initial validation for both steps on page load
+		document.addEventListener('DOMContentLoaded', () => {
+		  validateStep1();
+		  validateStep2();
+		});
+
+  </script>
+
+  <script>
+    const form = document.getElementById("tripForm");
+
+    function saveOfflineEntry(data) {
+      const stored = JSON.parse(localStorage.getItem("offlineEntries") || "[]");
+      stored.push(data);
+      localStorage.setItem("offlineEntries", JSON.stringify(stored));
+    }
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+
+      if (navigator.onLine) {
+        fetch(form.action, {
+          method: "POST",
+          body: new URLSearchParams(data)
+        }).then(() => form.reset());
+      } else {
+        saveOfflineEntry(data);
+        alert("Saved offline. Will send when you're back online.");
+        form.reset();
+        goToStep(1);
+      }
+    });
+
+    window.addEventListener("online", () => {
+      const stored = JSON.parse(localStorage.getItem("offlineEntries") || "[]");
+      if (stored.length > 0) {
+        stored.forEach(data => {
+          fetch(form.action, {
+            method: "POST",
+            body: new URLSearchParams(data)
+          });
+        });
+        localStorage.removeItem("offlineEntries");
+        alert("Offline entries submitted!");
+      }
+    });
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(reg => console.log('Service Worker registered', reg))
+        .catch(err => console.error('Service Worker failed', err));
+    }
+  </script>
+
 	<script>
-	  if ('serviceWorker' in navigator) {
-		navigator.serviceWorker.register('service-worker.js')
-		  .then(reg => console.log('Service Worker registered', reg))
-		  .catch(err => console.error('Service Worker failed', err));
+	  const routeStops = {
+		"Naga-Labo": {
+		  defaultFrom: "Naga",
+		  stops: [
+			"Naga", "Pamplona", "Libmanan", "Sipocot", "Cbsua", "Calagbangan",
+			"Villazar", "Basud", "Daet", "Talisay", "Vinzons", "Labo"
+		  ]
+		},
+		"Labo-Naga": {
+		  defaultFrom: "Labo",
+		  stops: [
+			"Labo", "Vinzons", "Talisay", "Daet", "Basud", "Villazar",
+			"Calagbangan", "Cbsua", "Sipocot", "Libmanan", "Pamplona", "Naga"
+		  ]
+		},
+		"Naga-Sorsogon": {
+		  defaultFrom: "Naga",
+		  stops: [
+			"Naga", "Pili", "Anayan", "Bula", "Pawili", "Baao", "Nabua", "Bato", "Agos", "Matacon",
+			"Polangui", "Oas", "Ligao", "Guinobatan", "Camalig", "Daraga", "Anislag", "Putiao",
+			"Salvacion", "Cumadcad", "Castilla", "Pangpang Sorsogon", "Sorsogon Diversion", "SM Sorsogon"
+		  ]
+		},
+		"Sorsogon-Naga": {
+		  defaultFrom: "SM Sorsogon",
+		  stops: [
+			"SM Sorsogon", "Sorsogon Diversion", "Pangpang Sorsogon", "Castilla", "Cumadcad", "Salvacion", "Putiao", 
+			"Anislag", "Daraga", "Camalig", "Guinobatan", "Ligao", "Oas", "Polangui", "Matacon", "Agos", 
+			"Bato", "Nabua", "Baao", "Pawili", "Bula", "Anayan", "Pili", "Naga"
+		  ]
+		}
+	  };
+
+	  const routeSelect = document.getElementById("RouteName");
+	  const fromStopSelect = document.getElementById("fromStop");
+	  const toStopSelect = document.getElementById("toStop");
+
+	  function updateStops() {
+		const selectedRoute = routeSelect.value;
+		if (!selectedRoute || !routeStops[selectedRoute]) return;
+
+		const { stops, defaultFrom } = routeStops[selectedRoute];
+
+		// Clear existing options
+		fromStopSelect.innerHTML = "<option value=''>-</option>";
+		toStopSelect.innerHTML = "<option value='-'>-</option>";
+
+		// Create new options for the FROM dropdown
+		stops.forEach(stop => {
+		  const fromOption = document.createElement("option");
+		  fromOption.value = stop;
+		  fromOption.textContent = stop;
+		  if (stop === defaultFrom) fromOption.selected = true;
+		  fromStopSelect.appendChild(fromOption);
+		});
+
+		// Update the TO stops based on the default FROM stop
+		updateToStopOptions();
 	  }
+
+	  function updateToStopOptions() {
+		const selectedRoute = routeSelect.value;
+		const fromStop = fromStopSelect.value;
+		const routeData = routeStops[selectedRoute];
+
+		// Clear existing options in TO dropdown
+		toStopSelect.innerHTML = "<option value='-'>-</option>";
+
+		if (routeData && fromStop) {
+		  const fromStopIndex = routeData.stops.indexOf(fromStop);
+
+		  // Only show stops that come after the selected FROM stop in the route
+		  const availableStops = routeData.stops.slice(fromStopIndex);
+
+		  availableStops.forEach(stop => {
+			const option = document.createElement('option');
+			option.value = stop;
+			option.textContent = stop;
+			toStopSelect.appendChild(option);
+		  });
+		}
+	  }
+
+	  // Initialize the stops on page load
+	  updateStops();
+	</script>
+
+	
+	<script>
+		const customFareMatrix = {
+		  "Naga-Labo": {
+			"Naga": {
+			  "Labo": 240,
+			  "Talisay": 230,
+			  "Vinzons": 230,
+			  "Daet": 220,
+			  "Basud": 220,
+			  "Villazar": 150,
+			  "Calagbangan": 140,
+			  "Sipocot": 100,
+			  "Cbsua": 100,
+			  "Libmanan": 70,
+			  "Pamplona": 70,
+			  "Naga": 70
+			  
+			},
+			"Pamplona": {
+			  "Labo": 230,
+			  "Talisay": 220,
+			  "Vinzons": 220,
+			  "Daet": 195,
+			  "Basud": 185,
+			  "Villazar": 105,
+			  "Calagbangan": 95,
+			  "Sipocot": 70,
+			  "Cbsua": 70,
+			  "Libmanan": 70,
+			  "Pamplona": 70
+			},
+			"Libmanan": {
+			  "Labo": 220,
+			  "Talisay": 195,
+			  "Vinzons": 195,
+			  "Daet": 165,
+			  "Basud": 155,
+			  "Villazar": 75,
+			  "Calagbangan": 75,
+			  "Sipocot": 70,
+			  "Cbsua": 70,
+			  "Libmanan": 70
+			},
+			"Cbsua": {
+			  "Labo": 170,
+			  "Talisay": 140,
+			  "Vinzons": 140,
+			  "Daet": 130,
+			  "Basud": 130,
+			  "Villazar": 70,
+			  "Calagbangan": 70,
+			  "Sipocot": 70,
+			  "Cbsua": 70
+			},
+			"Sipocot": {
+			  "Labo": 180,
+			  "Talisay": 150,
+			  "Vinzons": 160,
+			  "Daet": 140,
+			  "Basud": 130,
+			  "Villazar": 70,
+			  "Calagbangan": 70,
+			  "Sipocot": 70
+			},
+			"Calagbangan": {
+			  "Labo": 150,
+			  "Talisay": 120,
+			  "Vinzons": 130,
+			  "Daet": 105,
+			  "Basud": 95,
+			  "Villazar": 70,
+			  "Calagbangan": 70
+			},
+			"Villazar": {
+			  "Labo": 140,
+			  "Talisay": 105,
+			  "Vinzons": 100,
+			  "Daet": 95,
+			  "Basud": 90,
+			  "Villazar": 70
+			},
+			"Basud": {
+			  "Labo": 70,
+			  "Talisay": 70,
+			  "Vinzons": 70,
+			  "Daet": 70,
+			  "Basud": 70
+			},
+			"Daet": {
+			  "Labo": 70,
+			  "Talisay": 70,
+			  "Vinzons": 70,
+			  "Daet": 70
+			},
+			"Talisay": {
+			  "Labo": 70,
+			  "Talisay": 70,
+			  "Vinzons": 70
+			},
+			"Vinzons": {
+			  "Labo": 70,
+			  "Vinzons": 70
+			},
+			"Labo": {
+			  "Labo": 70
+			}
+		  },
+		  "Labo-Naga": {
+			"Labo": {
+				"Naga": 240,
+				"Pamplona": 230,
+				"Libmanan": 220,
+				"Sipocot": 180,
+				"Cbsua": 160,
+				"Calagbangan": 150,
+				"Villazar": 140,
+				"Basud": 70,
+				"Daet": 70,
+				"Talisay": 70,
+				"Vinzons": 70,
+				"Labo": 70
+			},
+			"Vinzons": {
+				"Naga": 230,
+				"Pamplona": 220,
+				"Libmanan": 195,
+				"Sipocot": 160,
+				"Cbsua": 140,
+				"Calagbangan": 130,
+				"Villazar": 100,
+				"Basud": 70,
+				"Daet": 70,
+				"Talisay": 70,
+				"Vinzons": 70
+			},
+			  "Talisay": {
+				"Naga": 230,
+				"Pamplona": 220,
+				"Libmanan": 195,
+				"Sipocot": 150,
+				"Cbsua": 140,
+				"Calagbangan": 120,
+				"Villazar": 105,
+				"Basud": 70,
+				"Daet": 70,
+				"Talisay": 70
+			  },
+			  "Daet": {
+				"Naga": 220,
+				"Pamplona": 195,
+				"Libmanan": 165,
+				"Sipocot": 140,
+				"Cbsua": 130,
+				"Calagbangan": 105,
+				"Villazar": 95,
+				"Basud": 70,
+				"Daet": 70
+			  },
+			  "Basud": {
+				"Naga": 220,
+				"Pamplona": 185,
+				"Libmanan": 155,
+				"Sipocot": 130,
+				"Cbsua": 130,
+				"Calagbangan": 95,
+				"Villazar": 90,
+				"Basud": 70
+			  },
+			  "Villazar": {
+				"Naga": 150,
+				"Pamplona": 105,
+				"Libmanan": 75,
+				"Sipocot": 70,
+				"Cbsua": 70,
+				"Calagbangan": 70,
+				"Villazar": 70
+			  },
+			  "Calagbangan": {
+				"Naga": 140,
+				"Pamplona": 95,
+				"Libmanan": 70,
+				"Sipocot": 70,
+				"Cbsua": 70,
+				"Calagbangan": 70
+			  },
+			  "Sipocot": {
+				"Naga": 100,
+				"Pamplona": 70,
+				"Libmanan": 70,
+				"Sipocot": 70
+			  },
+			  "Cbsua": {
+				"Naga": 100,
+				"Pamplona": 70,
+				"Libmanan": 70,
+				"Cbsua": 70
+			  },
+			  "Libmanan": {
+				"Naga": 70,
+				"Pamplona": 70,
+				"Libmanan": 70
+			  },
+			  "Pamplona": {
+				"Naga": 70,
+				"Pamplona": 70
+			  },
+			  "Naga": {
+				"Naga": 70
+			  }
+		  },
+		  "Naga-Sorsogon": {
+			"Naga": {
+			  "SM Sorsogon": 320
+			}
+		  },
+		  "Sorsogon-Naga": {
+			"SM Sorsogon": {
+			  "Naga": 320
+			}
+		  }
+		};
 	</script>
 	
 	<script>
-	  const form = document.getElementById("tripForm");
+		function computeFare() {
+		  const route = document.getElementById("RouteName").value;
+		  const from = document.getElementById("fromStop").value;
+		  const to = document.getElementById("toStop").value;
+		  const category = document.getElementById("passengerCategory").value;
 
-	  function saveOfflineEntry(data) {
-		const stored = JSON.parse(localStorage.getItem("offlineEntries") || "[]");
-		stored.push(data);
-		localStorage.setItem("offlineEntries", JSON.stringify(stored));
-	  }
+		  let fare = null;
 
-	  form.addEventListener("submit", function (e) {
-		e.preventDefault();
-		const formData = new FormData(form);
-		const data = Object.fromEntries(formData.entries());
+		  // Get fare from matrix
+		  if (
+			customFareMatrix[route] &&
+			customFareMatrix[route][from] &&
+			customFareMatrix[route][from][to]
+		  ) {
+			fare = customFareMatrix[route][from][to];
+		  }
 
-		if (navigator.onLine) {
-		  fetch(form.action, {
-			method: "POST",
-			body: new URLSearchParams(data)
-		  }).then(() => form.reset());
-		} else {
-		  saveOfflineEntry(data);
-		  alert("Saved offline. Will send when you're back online.");
-		  form.reset();
+		  // Apply discount if valid
+		  const discountCategories = ["Student", "Senior Citizen", "PWD"];
+		  if (discountCategories.includes(category)) {
+			fare *= 0.8; // 20% off
+		  }
+
+		  if (fare !== null) {
+			document.getElementById("fareDisplay").textContent = `₱${fare.toFixed(2)}`;
+			document.getElementById("fareHiddenInput").value = fare.toFixed(2);
+		  } else {
+			document.getElementById("fareDisplay").textContent = "00.00";
+			document.getElementById("fareHiddenInput").value = "";
+		  }
 		}
-	  });
-
-	  window.addEventListener("online", () => {
-		const stored = JSON.parse(localStorage.getItem("offlineEntries") || "[]");
-
-		if (stored.length > 0) {
-		  stored.forEach(data => {
-			fetch(form.action, {
-			  method: "POST",
-			  body: new URLSearchParams(data)
-			});
-		  });
-
-		  localStorage.removeItem("offlineEntries");
-		  alert("Offline entries submitted!");
-		}
-	  });
 	</script>
-	  
+
 	<script>
-	  function goToStep(step) {
-	    document.getElementById("step1").style.display = step === 1 ? "block" : "none";
-	    document.getElementById("step2").style.display = step === 2 ? "block" : "none";
-	    document.getElementById("step3").style.display = step === 3 ? "block" : "none";
-	  }
+		["RouteName", "fromStop", "toStop", "passengerCategory"].forEach(id =>
+		  document.getElementById(id).addEventListener("change", computeFare)
+		);
 	</script>
+
+
+	<script>
+	  // Get references to the elements in Step 1
+	  const busNumberSelect = document.getElementById('busNumber');
+	  const driverNameSelect = document.getElementById('driverName');
+	  const conductorNameSelect = document.getElementById('ConductorName');
+	  const routeSelectStep1 = document.getElementById('RouteName'); // Renamed for Step 1
+
+	  // Get the summary div in Step 2
+	  const summaryDiv = document.getElementById('summary');
+
+	  // Function to update the summary (on Next button press)
+	  function updateSummary() {
+		// Capture the selected values
+		const busNumber = busNumberSelect.value;
+		const driverName = driverNameSelect.value;
+		const conductorName = conductorNameSelect.value;
+		const routeName = routeSelectStep1.value;
+
+		// Create a summary string
+		const summaryText = `
+		  <strong>Bus Number:</strong> ${busNumber} <br>
+		  <strong>Driver:</strong> ${driverName} <br>
+		  <strong>Conductor:</strong> ${conductorName} <br>
+		  <strong>Route:</strong> ${routeName}
+		`;
+
+		// Update the summary div with the summary string
+		summaryDiv.innerHTML = summaryText;
+	  }
+
+	  // Add event listeners to update the summary when any field changes
+	  busNumberSelect.addEventListener('change', updateSummary);
+	  driverNameSelect.addEventListener('change', updateSummary);
+	  conductorNameSelect.addEventListener('change', updateSummary);
+	  routeSelectStep1.addEventListener('change', updateSummary);
+
+	  // Initialize the summary when the page loads
+	  updateSummary();
+	</script>
+
+
+
 
 </body>
 </html>
