@@ -141,7 +141,7 @@
 </head>
 <body>
 
-  <form id="tripForm" action="https://script.google.com/macros/s/AKfycbwqSeCOyp38Abs3zLwqwcQ-v8fr93Dm-0m1pG1A5Dky09aADzQf7daJDt3-d9WpzTuX/exec" method="POST">
+  <form id="tripForm" action="https://script.google.com/macros/s/AKfycbwnKDzbWPmLrq2chqwBqc1gU5M7U68YJe5YodKja5HYSIxIuWhjScBDXhl40OkEA25f/exec" method="POST">
 
     <!-- STEP 1 -->
     <div id="step1" class="step active">
@@ -281,30 +281,28 @@
 				<div id="confirmationSummary" style="font-size: 16px; margin-bottom: 20px;">
 				  <!-- Summary will populate dynamically -->
 				</div>
-				<button id="confirmBtn" onclick="confirmTrip()">Confirm</button>
+				<button id="confirmBtn" onclick="confirmTrip(event)">Confirm</button>
 				<button id="cancelBtn" onclick="closeModal()">Cancel</button>
 			  </div>
 			</div>
 
 			<script>
-			  // Flag to prevent multiple submissions
 			  let isSubmitting = false;
 
 			  // Show the confirmation modal
 			  function showConfirmationModal() {
-				// Capture the form data
 				const busNumber = document.getElementById('busNumber').value;
 				const driverName = document.getElementById('driverName').value;
 				const conductorName = document.getElementById('ConductorName').value;
 				const routeName = document.getElementById('RouteName').value;
 				const fare = document.getElementById('fareDisplay').textContent;
 
-				// Capture the additional fare details
+				// Capture additional fare details
 				const passengerCategory = document.getElementById('passengerCategory').value;
 				const fromStop = document.getElementById('fromStop').value;
 				const toStop = document.getElementById('toStop').value;
 
-				// Create the confirmation text with additional details
+				// Create confirmation text with additional details
 				const confirmationText = `
 				  <strong>Bus Number:</strong> ${busNumber} <br>
 				  <strong>Driver:</strong> ${driverName} <br>
@@ -324,16 +322,17 @@
 			  }
 
 			  // Function to confirm the trip, submit the form via AJAX, and reset Step 2
-			  function confirmTrip() {
+			  function confirmTrip(event) {
+				event.preventDefault(); // Prevent form submission on confirm
+
 				if (isSubmitting) return;  // Prevent multiple submissions
 
 				isSubmitting = true;  // Set flag to true, indicating submission in progress
 
-				// Prevent the default form submission (to avoid page reload)
 				const form = document.getElementById('tripForm');
 				const formData = new FormData(form); // Collect all the form data
 
-				// Logging formData to check if all values are captured
+				// Log formData to check if all values are captured
 				for (let [key, value] of formData.entries()) {
 				  console.log(`${key}: ${value}`);
 				}
@@ -343,7 +342,7 @@
 				  method: 'POST', // Use the form's method (POST)
 				  body: formData, // Send the form data
 				})
-				.then(response => response.json()) // Assuming the response is in JSON format
+				.then(response => response.text()) // Treat it as text instead of JSON
 				.then(data => {
 				  // Handle successful submission
 				  console.log("Form submitted successfully:", data);
@@ -395,6 +394,7 @@
 				closeModal();  // Close the modal
 			  });
 			</script>
+
 
 
 
