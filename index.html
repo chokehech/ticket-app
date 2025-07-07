@@ -141,9 +141,11 @@
 </head>
 <body>
 
-  <form id="tripForm" action="https://script.google.com/macros/s/AKfycbyTuJir2PJDarlbTO4QFTyQ8032b-OA4UF1yYA2WrwXbrHbx1kBXKEnczhwy3fvopY-/exec" method="POST">
+  <form id="tripForm" action="https://script.google.com/macros/s/AKfycbx277I50O3WPnz318J-50d0O_L4wyjlEeimWjhfwhd5M7urKyHTzwr9wfYWeHrjHAW6/exec" method="POST">
 	<!-- add this inside your <form> -->
 	<input type="hidden" name="entered_timestamp" id="enteredTimestamp">
+
+	  <input type="hidden" name="ticket_id" id="ticketIdInput">
 
     <!-- STEP 1 -->
     <div id="step1" class="step active">
@@ -282,6 +284,7 @@
 				<h2>Confirm Your Trip Details</h2>
 				<div id="confirmationSummary" style="font-size: 16px; margin-bottom: 20px;">
 				  <!-- Summary will populate dynamically -->
+					<strong>Ticket ID:</strong> <span id="ticketIdPlaceholder"></span><br><br>
 				</div>
 				<button id="confirmBtn" onclick="confirmTrip(event)">Confirm</button>
 				<button id="cancelBtn" onclick="closeModal()">Cancel</button>
@@ -293,35 +296,40 @@
 
 			  // Show the confirmation modal
 			  function showConfirmationModal() {
-				const busNumber = document.getElementById('busNumber').value;
-				const driverName = document.getElementById('driverName').value;
-				const conductorName = document.getElementById('ConductorName').value;
-				const routeName = document.getElementById('RouteName').value;
-				const fare = document.getElementById('fareDisplay').textContent;
-
-				// Capture additional fare details
-				const passengerCategory = document.getElementById('passengerCategory').value;
-				const fromStop = document.getElementById('fromStop').value;
-				const toStop = document.getElementById('toStop').value;
-
-				// Create confirmation text with additional details
-				const confirmationText = `
-				  <strong>Bus Number:</strong> ${busNumber} <br>
-				  <strong>Driver:</strong> ${driverName} <br>
-				  <strong>Conductor:</strong> ${conductorName} <br>
-				  <strong>Route:</strong> ${routeName} <br>
-				  <strong>Passenger Category:</strong> ${passengerCategory} <br>
-				  <strong>Origin:</strong> ${fromStop} <br>
-				  <strong>Destination:</strong> ${toStop} <br>
-				  <strong>Fare:</strong> ${fare}
-				`;
+				  // 1) Generate a client-side UUID for the ticket
+				  const ticketId = crypto.randomUUID();
+				  document.getElementById('ticketIdInput').value       = ticketId;
+				  document.getElementById('ticketIdPlaceholder').textContent = ticketId;
 				
-				// Set the summary in the modal
-				document.getElementById('confirmationSummary').innerHTML = confirmationText;
+				  // 2) Build the rest of your summary
+				  const busNumber       = document.getElementById('busNumber').value;
+				  const driverName      = document.getElementById('driverName').value;
+				  const conductorName   = document.getElementById('ConductorName').value;
+				  const routeName       = document.getElementById('RouteName').value;
+				  const passengerCategory = document.getElementById('passengerCategory').value;
+				  const fromStop        = document.getElementById('fromStop').value;
+				  const toStop          = document.getElementById('toStop').value;
+				  const fare            = document.getElementById('fareDisplay').textContent;
+				
+				  const confirmationText = `
+				    <strong>Bus Number:</strong> ${busNumber}<br>
+				    <strong>Driver:</strong> ${driverName}<br>
+				    <strong>Conductor:</strong> ${conductorName}<br>
+				    <strong>Route:</strong> ${routeName}<br>
+				    <strong>Passenger Category:</strong> ${passengerCategory}<br>
+				    <strong>Origin:</strong> ${fromStop}<br>
+				    <strong>Destination:</strong> ${toStop}<br>
+				    <strong>Fare:</strong> ${fare}
+				  `;
+				
+				  // Set the summary (we leave the Ticket ID line intact above)
+				  document.getElementById('confirmationSummary').innerHTML =
+				    `<strong>Ticket ID:</strong> ${ticketId}<br><br>` + confirmationText;
+				
+				  // Show the modal
+				  document.getElementById('confirmationModal').style.display = 'flex';
+				}
 
-				// Show the modal
-				document.getElementById('confirmationModal').style.display = 'flex';
-			  }
 
 			  // Function to confirm the trip, submit the form via AJAX, and reset Step 2
 			  // Function to confirm the trip and submit via standard HTML POST to avoid CORS issues
@@ -331,7 +339,11 @@
 				  if (isSubmitting) return;
 				  isSubmitting = true;
 				
-				  // 2. STAMP THE ENTRY TIME here, before anything else:
+				  // 0. GENERATE A UUIDv4 for this ticket and stash it in the hidden field
+				  const ticketId = crypto.randomUUID();
+				  document.getElementById('ticketIdInput').value = ticketId;
+				
+				  // 1. STAMP THE ENTRY TIME next
 				  const now = new Date().toISOString();
 				  document.getElementById('enteredTimestamp').value = now;
 				
@@ -346,7 +358,7 @@
 				    })
 				    .then(response => {
 				      if (response.ok) {
-				        alert("Trip submitted successfully!");
+				        alert(`Trip ${ticketId} submitted successfully!`);
 				        resetStep2();
 				        closeModal();
 				        validateStep2();
@@ -361,14 +373,15 @@
 				      isSubmitting = false;
 				    });
 				  } else {
-				    // offline path: data already includes entered_timestamp
+				    // offline path: data already includes entered_timestamp & ticket_id
 				    saveOfflineEntry(data);
-				    alert("Saved offline. Will send when you're back online.");
+				    alert(`Saved offline (Ticket ${ticketId}). Will send when you're back online.`);
 				    resetStep2();
 				    closeModal();
 				    isSubmitting = false;
 				  }
 				}
+
 
 
 
