@@ -334,16 +334,15 @@
 			  // Function to confirm the trip, submit the form via AJAX, and reset Step 2
 			  // Function to confirm the trip and submit via standard HTML POST to avoid CORS issues
 				function confirmTrip(event) {
-				  event.preventDefault();              // 1. stop default submit
-				
+				  event.preventDefault();
 				  if (isSubmitting) return;
 				  isSubmitting = true;
 				
-				  // 0. GENERATE A UUIDv4 for this ticket and stash it in the hidden field
+				  // 1) Generate & stash the UUID
 				  const ticketId = crypto.randomUUID();
 				  document.getElementById('ticketIdInput').value = ticketId;
 				
-				  // 1. STAMP THE ENTRY TIME next
+				  // 2) Stamp the entry time
 				  const now = new Date().toISOString();
 				  document.getElementById('enteredTimestamp').value = now;
 				
@@ -351,36 +350,38 @@
 				  const formData = new FormData(form);
 				  const data = Object.fromEntries(formData.entries());
 				
+				  function finishUp() {
+				    resetStep2();       // clear out passenger/category/from/to/fare
+				    validateStep2();    // ensure Next on Step 2 is correctly disabled
+				    closeModal();       // hide the confirmation popup
+				    goToStep(2);        // ← jump back to Step 2
+				    isSubmitting = false;
+				  }
+				
 				  if (navigator.onLine) {
 				    fetch(form.action, {
 				      method: "POST",
 				      body: new URLSearchParams(data)
 				    })
 				    .then(response => {
-				      if (response.ok) {
-				        alert(`Trip ${ticketId} submitted successfully!`);
-				        resetStep2();
-				        closeModal();
-				        validateStep2();
-				      } else {
-				        alert("Submission failed. Please try again.");
-				      }
+				      if (!response.ok) throw new Error("Server error");
+				      alert(`Trip ${ticketId} submitted successfully!`);
 				    })
-				    .catch(() => {
-				      alert("Network error during submission.");
+				    .catch(err => {
+				      console.warn("Submission failed, saving offline:", err);
+				      saveOfflineEntry(data);
+				      alert(`Saved offline (Ticket ${ticketId}).`);
 				    })
 				    .finally(() => {
-				      isSubmitting = false;
+				      finishUp();
 				    });
 				  } else {
-				    // offline path: data already includes entered_timestamp & ticket_id
 				    saveOfflineEntry(data);
-				    alert(`Saved offline (Ticket ${ticketId}). Will send when you're back online.`);
-				    resetStep2();
-				    closeModal();
-				    isSubmitting = false;
+				    alert(`Saved offline (Ticket ${ticketId}).`);
+				    finishUp();
 				  }
 				}
+
 
 
 
