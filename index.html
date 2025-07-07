@@ -474,55 +474,83 @@
 
   </script>
 
-  <script>
-    const form = document.getElementById("tripForm");
+ <script>
+  const form = document.getElementById("tripForm");
 
-    function saveOfflineEntry(data) {
-      const stored = JSON.parse(localStorage.getItem("offlineEntries") || "[]");
-      stored.push(data);
-      localStorage.setItem("offlineEntries", JSON.stringify(stored));
-    }
+  // 1) Save an entry to localStorage when offline
+  function saveOfflineEntry(data) {
+    const stored = JSON.parse(localStorage.getItem("offlineEntries") || "[]");
+    stored.push(data);
+    localStorage.setItem("offlineEntries", JSON.stringify(stored));
+  }
 
-    form.addEventListener("submit", function (e) {
-	  e.preventDefault();
-	
-	  const formData = new FormData(form);
-	  // ← INSERT the timestamp here:
-	  formData.set('entered_timestamp', new Date().toISOString());
-	
-	  const data = Object.fromEntries(formData.entries());
-	
-	  if (navigator.onLine) {
-	    fetch(form.action, {
-	      method: "POST",
-	      body: new URLSearchParams(data)
-	    }).then(() => {
-	      form.reset();
-	      goToStep(1);
-	    });
-	  } else {
-	    saveOfflineEntry(data);
-	    alert("Saved offline. Will send when you're back online.");
-	    form.reset();
-	    goToStep(1);
-	  }
-	});
+  // 2) Flush all queued entries to the server, then clear the queue
+  function sendOfflineEntries() {
+    const stored = JSON.parse(localStorage.getItem("offlineEntries") || "[]");
+    if (stored.length === 0) return;
 
-
-    window.addEventListener("online", () => {
-      const stored = JSON.parse(localStorage.getItem("offlineEntries") || "[]");
-      if (stored.length > 0) {
-        stored.forEach(data => {
-          fetch(form.action, {
-            method: "POST",
-            body: new URLSearchParams(data)
-          });
-        });
-        localStorage.removeItem("offlineEntries");
-        alert("Offline entries submitted!");
-      }
+    stored.forEach(data => {
+      fetch(form.action, {
+        method: "POST",
+        body: new URLSearchParams(data)
+      }).catch(err => console.error("Failed to send offline entry:", err));
     });
-  </script>
+
+    localStorage.removeItem("offlineEntries");
+    alert("Offline entries submitted!");
+  }
+
+  // 3) When the browser comes back online, flush the queue
+  window.addEventListener("online", sendOfflineEntries);
+
+  // 4) Fallback polling every minute in case the 'online' event is missed
+  setInterval(() => {
+    if (navigator.onLine) sendOfflineEntries();
+  }, 60_000);
+
+  // 5) ALSO attempt a sync on every fresh page load, if we're already online
+  window.addEventListener("DOMContentLoaded", () => {
+    if (navigator.onLine) {
+      sendOfflineEntries();
+    }
+  });
+
+  // 6) Main form submission handler
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    // Stamp the moment of entry
+    const formData = new FormData(form);
+    formData.set('entered_timestamp', new Date().toISOString());
+    const data = Object.fromEntries(formData.entries());
+
+    if (navigator.onLine) {
+      // Online: immediate POST
+      fetch(form.action, {
+        method: "POST",
+        body: new URLSearchParams(data)
+      })
+      .then(() => {
+        form.reset();
+        goToStep(1);
+      })
+      .catch(err => {
+        console.error("Submit failed, saving offline.", err);
+        saveOfflineEntry(data);
+        form.reset();
+        goToStep(1);
+      });
+    } else {
+      // Offline: queue it
+      saveOfflineEntry(data);
+      alert("Saved offline. Will send when you're back online.");
+      form.reset();
+      goToStep(1);
+    }
+  });
+</script>
+
+
 
   <script>
     if ('serviceWorker' in navigator) {
