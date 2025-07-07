@@ -324,23 +324,49 @@
 			  // Function to confirm the trip, submit the form via AJAX, and reset Step 2
 			  // Function to confirm the trip and submit via standard HTML POST to avoid CORS issues
 				function confirmTrip(event) {
-				  event.preventDefault(); // Prevent default click behavior
+				  event.preventDefault(); // Prevent default form behavior
 				
-				  if (isSubmitting) return;  // Prevent multiple submissions
-				
-				  isSubmitting = true;  // Set flag to true, indicating submission in progress
+				  if (isSubmitting) return;
+				  isSubmitting = true;
 				
 				  const form = document.getElementById('tripForm');
-				
-				  // Optional: log form data for debugging
 				  const formData = new FormData(form);
-				  for (let [key, value] of formData.entries()) {
-				    console.log(`${key}: ${value}`);
-				  }
+				  const data = Object.fromEntries(formData.entries());
 				
-				  // Submit the form like a traditional POST (avoids CORS)
-				  form.submit();
+				  if (navigator.onLine) {
+				    fetch(form.action, {
+				      method: "POST",
+				      body: new URLSearchParams(data)
+				    })
+				    .then(response => {
+				      if (response.ok) {
+				        alert("Trip submitted successfully!");
+				        form.reset();
+				        updateStops(); // Reinitialize dropdowns
+				        goToStep(1);
+				        closeModal(); // ✅ Hide modal
+				      } else {
+				        alert("Submission failed. Please try again.");
+				      }
+				    })
+				    .catch(() => {
+				      alert("Network error during submission.");
+				    })
+				    .finally(() => {
+				      isSubmitting = false;
+				    });
+				  } else {
+				    // Offline fallback
+				    saveOfflineEntry(data);
+				    alert("Saved offline. Will send when you're back online.");
+				    form.reset();
+				    updateStops();
+				    goToStep(1);
+				    closeModal();
+				    isSubmitting = false;
+				  }
 				}
+
 
 
 			  // Function to close the modal and reset the form state
