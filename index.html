@@ -141,7 +141,9 @@
 </head>
 <body>
 
-  <form id="tripForm" action="https://script.google.com/macros/s/AKfycbziR1jUjyJmb2vfxATyyhMnIeu7YRrhICkZDwgLGNBk-q3GIjaNcihlEjs3bytw1VLj/exec" method="POST">
+  <form id="tripForm" action="https://script.google.com/macros/s/AKfycbzbweszBb4tTnalmU6ohBRExuu6mcnunPM7t22taiN_SHu3lcx-tW-Y8UCKOk_MDfno/exec" method="POST">
+	<!-- add this inside your <form> -->
+	<input type="hidden" name="entered_timestamp" id="enteredTimestamp">
 
     <!-- STEP 1 -->
     <div id="step1" class="step active">
@@ -324,10 +326,14 @@
 			  // Function to confirm the trip, submit the form via AJAX, and reset Step 2
 			  // Function to confirm the trip and submit via standard HTML POST to avoid CORS issues
 				function confirmTrip(event) {
-				  event.preventDefault(); // Prevent default form behavior
+				  event.preventDefault();              // 1. stop default submit
 				
 				  if (isSubmitting) return;
 				  isSubmitting = true;
+				
+				  // 2. STAMP THE ENTRY TIME here, before anything else:
+				  const now = new Date().toISOString();
+				  document.getElementById('enteredTimestamp').value = now;
 				
 				  const form = document.getElementById('tripForm');
 				  const formData = new FormData(form);
@@ -341,9 +347,9 @@
 				    .then(response => {
 				      if (response.ok) {
 				        alert("Trip submitted successfully!");
-					resetStep2();       // ✅ Only clear Step 2 fields
-					closeModal();       // ✅ Close modal
-
+				        resetStep2();
+				        closeModal();
+				        validateStep2();
 				      } else {
 				        alert("Submission failed. Please try again.");
 				      }
@@ -355,16 +361,15 @@
 				      isSubmitting = false;
 				    });
 				  } else {
-				    // Offline fallback
+				    // offline path: data already includes entered_timestamp
 				    saveOfflineEntry(data);
 				    alert("Saved offline. Will send when you're back online.");
-				    form.reset();
-				    updateStops();
-				    goToStep(1);
+				    resetStep2();
 				    closeModal();
 				    isSubmitting = false;
 				  }
 				}
+
 
 
 
@@ -479,22 +484,30 @@
     }
 
     form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      const formData = new FormData(form);
-      const data = Object.fromEntries(formData.entries());
+	  e.preventDefault();
+	
+	  const formData = new FormData(form);
+	  // ← INSERT the timestamp here:
+	  formData.set('entered_timestamp', new Date().toISOString());
+	
+	  const data = Object.fromEntries(formData.entries());
+	
+	  if (navigator.onLine) {
+	    fetch(form.action, {
+	      method: "POST",
+	      body: new URLSearchParams(data)
+	    }).then(() => {
+	      form.reset();
+	      goToStep(1);
+	    });
+	  } else {
+	    saveOfflineEntry(data);
+	    alert("Saved offline. Will send when you're back online.");
+	    form.reset();
+	    goToStep(1);
+	  }
+	});
 
-      if (navigator.onLine) {
-        fetch(form.action, {
-          method: "POST",
-          body: new URLSearchParams(data)
-        }).then(() => form.reset());
-      } else {
-        saveOfflineEntry(data);
-        alert("Saved offline. Will send when you're back online.");
-        form.reset();
-        goToStep(1);
-      }
-    });
 
     window.addEventListener("online", () => {
       const stored = JSON.parse(localStorage.getItem("offlineEntries") || "[]");
