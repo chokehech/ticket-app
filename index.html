@@ -341,10 +341,10 @@
 				    .then(response => {
 				      if (response.ok) {
 				        alert("Trip submitted successfully!");
-				        form.reset();
-				        updateStops(); // Reinitialize dropdowns
-				        goToStep(1);
-				        closeModal(); // ✅ Hide modal
+					resetStep2();       // ✅ Only clear Step 2 fields
+					goToStep(1);        // ✅ Return to Step 1
+					closeModal();       // ✅ Close modal
+
 				      } else {
 				        alert("Submission failed. Please try again.");
 				      }
