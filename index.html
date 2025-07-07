@@ -322,50 +322,26 @@
 			  }
 
 			  // Function to confirm the trip, submit the form via AJAX, and reset Step 2
-			  function confirmTrip(event) {
-				event.preventDefault(); // Prevent form submission on confirm
-
-				if (isSubmitting) return;  // Prevent multiple submissions
-
-				isSubmitting = true;  // Set flag to true, indicating submission in progress
-
-				const form = document.getElementById('tripForm');
-				const formData = new FormData(form); // Collect all the form data
-
-				// Log formData to check if all values are captured
-				for (let [key, value] of formData.entries()) {
-				  console.log(`${key}: ${value}`);
+			  // Function to confirm the trip and submit via standard HTML POST to avoid CORS issues
+				function confirmTrip(event) {
+				  event.preventDefault(); // Prevent default click behavior
+				
+				  if (isSubmitting) return;  // Prevent multiple submissions
+				
+				  isSubmitting = true;  // Set flag to true, indicating submission in progress
+				
+				  const form = document.getElementById('tripForm');
+				
+				  // Optional: log form data for debugging
+				  const formData = new FormData(form);
+				  for (let [key, value] of formData.entries()) {
+				    console.log(`${key}: ${value}`);
+				  }
+				
+				  // Submit the form like a traditional POST (avoids CORS)
+				  form.submit();
 				}
 
-				// Submit the form using Fetch API (AJAX)
-				fetch(form.action, {
-				  method: 'POST', // Use the form's method (POST)
-				  body: formData, // Send the form data
-				})
-				.then(response => response.text()) // Treat it as text instead of JSON
-				.then(data => {
-				  // Handle successful submission
-				  console.log("Form submitted successfully:", data);
-
-				  // After submission, we want to reset Step 2 fields
-				  resetStep2();  // Reset the fields in Step 2
-
-				  // Ensure Step 2 remains visible
-				  goToStep(2);  // Make sure Step 2 remains visible
-
-				  // Close the modal
-				  closeModal();
-				})
-				.catch(error => {
-				  // Handle errors (if any)
-				  console.error("Error submitting form:", error);
-				  alert("There was an error submitting the form.");
-
-				  // Close the modal so the user can retry
-				  closeModal();
-				  isSubmitting = false;  // Reset flag after error
-				});
-			  }
 
 			  // Function to close the modal and reset the form state
 			  function closeModal() {
