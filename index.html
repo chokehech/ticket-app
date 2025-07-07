@@ -287,7 +287,7 @@
 					<strong>Ticket ID:</strong> <span id="ticketIdPlaceholder"></span><br><br>
 				</div>
 				<button id="confirmBtn" onclick="confirmTrip(event)">Confirm</button>
-				<button id="cancelBtn" onclick="closeModal()">Cancel</button>
+				<button id="cancelBtn" type="button">Cancel</button>
 			  </div>
 			</div>
   </form>
@@ -389,12 +389,20 @@
 
 			  // Function to close the modal and reset the form state
 			  function closeModal() {
-				// Close the modal by hiding it
-				document.getElementById('confirmationModal').style.display = 'none';
+			  // Hide the modal
+			  document.getElementById('confirmationModal').style.display = 'none';
+			  // Reset submission flag
+			  isSubmitting = false;
+			  // Re-enable “Next” on Step 2 if its fields are valid
+			  validateStep2();
+			  // Make sure we’re on Step 2
+			  goToStep(2);
+			}
+				  document.getElementById('cancelBtn').addEventListener('click', function(e) {
+				    e.preventDefault();
+				    closeModal();
+				  });
 
-				// Reset the submission flag
-				isSubmitting = false;
-			  }
 
 			  // Function to reset Step 2 fields
 			  function resetStep2() {
