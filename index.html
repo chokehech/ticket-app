@@ -288,6 +288,68 @@
 			  </div>
 			</div>
   </form>
+
+			  <!-- STEP 1: Printable Receipt Template (hidden by default) -->
+		  <div id="receipt" style="display:none;">
+		    <style>
+		      /* Only shown when printing */
+		      @media print {
+		        body * { visibility: hidden; }
+		        #receipt, #receipt * { visibility: visible; }
+		        #receipt { position: absolute; top: 0; left: 0; width: 100%; }
+		      }
+		      /* Receipt styling */
+		      #receipt { font-family: monospace; padding: 1rem; }
+		      #receipt h2 { text-align: center; margin-bottom: .5rem; }
+		      #receipt table { width: 100%; border-collapse: collapse; margin: .2rem 0; }
+		      #receipt td { padding: .2rem 0; }
+		    </style>
+		
+		    <h2>Bus Trip Receipt</h2>
+		    <table>
+		      <tr><td>Bus Number:</td><td id="r-bus"></td></tr>
+		      <tr><td>Driver:</td><td id="r-driver"></td></tr>
+		      <tr><td>Conductor:</td><td id="r-conductor"></td></tr>
+		      <tr><td>Route:</td><td id="r-route"></td></tr>
+		      <tr><td>Category:</td><td id="r-category"></td></tr>
+		      <tr><td>From:</td><td id="r-from"></td></tr>
+		      <tr><td>To:</td><td id="r-to"></td></tr>
+		      <tr><td>Fare:</td><td id="r-fare"></td></tr>
+		      <tr><td>Time:</td><td id="r-time"></td></tr>
+		    </table>
+		    <p style="text-align:center; margin-top:1rem;">Thank you for riding with us!</p>
+		  </div>
+	
+		<script>
+		  /**
+		   * Populate, print, and then hide the receipt,
+		   * before resetting your form UI.
+		   */
+		  function onSubmissionSuccess(data) {
+		    // 1) Fill in the receipt fields
+		    document.getElementById('r-bus').textContent       = data.bus_number;
+		    document.getElementById('r-driver').textContent    = data.driver_name;
+		    document.getElementById('r-conductor').textContent = data.conductor_name;
+		    document.getElementById('r-route').textContent     = data.route_name;
+		    document.getElementById('r-category').textContent  = data.passenger_category;
+		    document.getElementById('r-from').textContent      = data.from_stop;
+		    document.getElementById('r-to').textContent        = data.to_stop;
+		    document.getElementById('r-fare').textContent      = `₱${parseFloat(data.fare).toFixed(2)}`;
+		    document.getElementById('r-time').textContent      = new Date(data.entered_timestamp).toLocaleString();
+		
+		    // 2) Show & trigger the browser print dialog
+		    const receiptEl = document.getElementById('receipt');
+		    receiptEl.style.display = 'block';
+		    window.print();
+		
+		    // 3) Hide it again and reset UI
+		    receiptEl.style.display = 'none';
+		    alert("Trip recorded and receipt printed!");
+		    resetStep2();
+		    closeModal();
+		    validateStep2();
+		  }
+		</script>
 			<script>
 			  let isSubmitting = false;
 
@@ -326,18 +388,24 @@
 			  // Function to confirm the trip, submit the form via AJAX, and reset Step 2
 			  // Function to confirm the trip and submit via standard HTML POST to avoid CORS issues
 				function confirmTrip(event) {
-				  event.preventDefault();              // 1. stop default submit
-				
+				  event.preventDefault();
 				  if (isSubmitting) return;
 				  isSubmitting = true;
 				
-				  // 2. STAMP THE ENTRY TIME here, before anything else:
+				  // Stamp the entry time
 				  const now = new Date().toISOString();
 				  document.getElementById('enteredTimestamp').value = now;
 				
-				  const form = document.getElementById('tripForm');
-				  const formData = new FormData(form);
-				  const data = Object.fromEntries(formData.entries());
+				  // Gather form data
+				  const form    = document.getElementById('tripForm');
+				  const formData= new FormData(form);
+				  const data    = Object.fromEntries(formData.entries());
+				
+				  // Helper to finish and print
+				  function finish() {
+				    onSubmissionSuccess(data);
+				    isSubmitting = false;
+				  }
 				
 				  if (navigator.onLine) {
 				    fetch(form.action, {
@@ -346,29 +414,23 @@
 				    })
 				    .then(response => {
 				      if (response.ok) {
-				        alert("Trip submitted successfully!");
-				        resetStep2();
-				        closeModal();
-				        validateStep2();
+				        finish();
 				      } else {
 				        alert("Submission failed. Please try again.");
+				        isSubmitting = false;
 				      }
 				    })
 				    .catch(() => {
 				      alert("Network error during submission.");
-				    })
-				    .finally(() => {
 				      isSubmitting = false;
 				    });
 				  } else {
-				    // offline path: data already includes entered_timestamp
+				    // Offline: queue and still print receipt
 				    saveOfflineEntry(data);
-				    alert("Saved offline. Will send when you're back online.");
-				    resetStep2();
-				    closeModal();
-				    isSubmitting = false;
+				    finish();
 				  }
 				}
+
 
 
 
@@ -954,6 +1016,69 @@
 	</script>
 
 
+
+
+	  <!-- STEP 1: Printable Receipt Template (hidden by default) -->
+	  <div id="receipt" style="display:none;">
+	    <style>
+	      /* Only shown when printing */
+	      @media print {
+	        body * { visibility: hidden; }
+	        #receipt, #receipt * { visibility: visible; }
+	        #receipt { position: absolute; top: 0; left: 0; width: 100%; }
+	      }
+	      /* Receipt styling */
+	      #receipt { font-family: monospace; padding: 1rem; }
+	      #receipt h2 { text-align: center; margin-bottom: .5rem; }
+	      #receipt table { width: 100%; border-collapse: collapse; margin: .2rem 0; }
+	      #receipt td { padding: .2rem 0; }
+	    </style>
+	
+	    <h2>Bus Trip Receipt</h2>
+	    <table>
+	      <tr><td>Bus Number:</td><td id="r-bus"></td></tr>
+	      <tr><td>Driver:</td><td id="r-driver"></td></tr>
+	      <tr><td>Conductor:</td><td id="r-conductor"></td></tr>
+	      <tr><td>Route:</td><td id="r-route"></td></tr>
+	      <tr><td>Category:</td><td id="r-category"></td></tr>
+	      <tr><td>From:</td><td id="r-from"></td></tr>
+	      <tr><td>To:</td><td id="r-to"></td></tr>
+	      <tr><td>Fare:</td><td id="r-fare"></td></tr>
+	      <tr><td>Time:</td><td id="r-time"></td></tr>
+	    </table>
+	    <p style="text-align:center; margin-top:1rem;">Thank you for riding with us!</p>
+	  </div>
+
+	<script>
+	  /**
+	   * Populate, print, and then hide the receipt,
+	   * before resetting your form UI.
+	   */
+	  function onSubmissionSuccess(data) {
+	    // 1) Fill in the receipt fields
+	    document.getElementById('r-bus').textContent       = data.bus_number;
+	    document.getElementById('r-driver').textContent    = data.driver_name;
+	    document.getElementById('r-conductor').textContent = data.conductor_name;
+	    document.getElementById('r-route').textContent     = data.route_name;
+	    document.getElementById('r-category').textContent  = data.passenger_category;
+	    document.getElementById('r-from').textContent      = data.from_stop;
+	    document.getElementById('r-to').textContent        = data.to_stop;
+	    document.getElementById('r-fare').textContent      = `₱${parseFloat(data.fare).toFixed(2)}`;
+	    document.getElementById('r-time').textContent      = new Date(data.entered_timestamp).toLocaleString();
+	
+	    // 2) Show & trigger the browser print dialog
+	    const receiptEl = document.getElementById('receipt');
+	    receiptEl.style.display = 'block';
+	    window.print();
+	
+	    // 3) Hide it again and reset UI
+	    receiptEl.style.display = 'none';
+	    alert("Trip recorded and receipt printed!");
+	    resetStep2();
+	    closeModal();
+	    validateStep2();
+	  }
+	</script>
 
 
 </body>
