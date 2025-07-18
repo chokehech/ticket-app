@@ -324,12 +324,11 @@
 			  // Function to confirm the trip, submit the form via AJAX, and reset Step 2
 			  // Function to confirm the trip and submit via standard HTML POST to avoid CORS issues
 				function confirmTrip(event) {
-				  event.preventDefault();              // 1. stop default submit
-				
+				  event.preventDefault();
 				  if (isSubmitting) return;
 				  isSubmitting = true;
 				
-				  // 2. STAMP THE ENTRY TIME here, before anything else:
+				  // 1. Stamp timestamp
 				  const now = new Date().toISOString();
 				  document.getElementById('enteredTimestamp').value = now;
 				
@@ -337,36 +336,18 @@
 				  const formData = new FormData(form);
 				  const data = Object.fromEntries(formData.entries());
 				
-				  if (navigator.onLine) {
-				    fetch(form.action, {
-				      method: "POST",
-				      body: new URLSearchParams(data)
-				    })
-				    .then(response => {
-				      if (response.ok) {
-				        alert("Trip submitted successfully!");
-				        resetStep2();
-				        closeModal();
-				        validateStep2();
-				      } else {
-				        alert("Submission failed. Please try again.");
-				      }
-				    })
-				    .catch(() => {
-				      alert("Network error during submission.");
-				    })
-				    .finally(() => {
-				      isSubmitting = false;
-				    });
-				  } else {
-				    // offline path: data already includes entered_timestamp
-				    saveOfflineEntry(data);
-				    alert("Saved offline. Will send when you're back online.");
-				    resetStep2();
-				    closeModal();
-				    isSubmitting = false;
-				  }
+				  // 2. Always save locally
+				  saveOfflineEntry(data);
+				  alert("Trip saved locally. It will be submitted in the background.");
+				  
+				  // 3. Reset UI
+				  resetStep2();
+				  closeModal();
+				  validateStep2();
+				
+				  isSubmitting = false;
 				}
+
 
 
 
